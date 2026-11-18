@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark theme, so the app's own dark colours are used when the phone is in dark mode. -->
+    <style name="AppTheme" parent="android:Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">#0F3E2F</item>
+        <item name="android:navigationBarColor">#161B18</item>
+        <item name="android:windowBackground">@color/app_background</item>
+        <item name="android:colorPrimary">#0F3E2F</item>
+        <item name="android:colorAccent">#45B088</item>
+    </style>
+    <color name="app_background">#0E1210</color>
+</resources>

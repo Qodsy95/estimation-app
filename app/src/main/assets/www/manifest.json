@@ -1,0 +1,16 @@
+{
+  "name": "Estimation Scorekeeper",
+  "short_name": "Estimation",
+  "description": "Score keeper for the Estimation card game: single or 2 v 2 teams, online or classic rules.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eceee9",
+  "theme_color": "#145741",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

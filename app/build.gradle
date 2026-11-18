@@ -1,0 +1,54 @@
+plugins {
+    id 'com.android.application'
+}
+
+def runNumber = (System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger()
+
+android {
+    namespace 'com.estimation.scorekeeper'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.estimation.scorekeeper'
+        minSdk 24
+        targetSdk 34
+        versionCode runNumber
+        versionName "1.0.${runNumber}"
+    }
+
+    signingConfigs {
+        // One fixed key for every build, so a new APK installs over the old one and scores are kept.
+        shared {
+            storeFile rootProject.file('signing/estimation.keystore')
+            storePassword 'estimation'
+            keyAlias 'estimation'
+            keyPassword 'estimation'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.shared
+        }
+        debug {
+            signingConfig signingConfigs.shared
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    // This APK is for installing directly on phones, not for the Play Store,
+    // so Play Store lint checks (like its target-SDK deadline) must not block the build.
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.11.0'
+}
