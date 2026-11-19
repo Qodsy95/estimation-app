@@ -313,6 +313,12 @@ tfoot th,tfoot td{font-weight:800;font-size:15px;border-bottom:0;background:var(
 .pick button[aria-pressed="true"] .sg.red{color:var(--suit-red-inv)}
 .rsub .sg{font-size:12px;font-weight:700}
 .suits-pick button{min-width:50px;justify-content:center}
+.dbl-row{margin:10px 0 2px}
+.dbl{display:inline-flex;align-items:center;gap:8px;border:1px dashed var(--axis);background:transparent;color:var(--ink);border-radius:999px;padding:5px 14px 5px 5px;font-weight:700;font-size:14px;min-height:42px}
+.dbl:hover{background:var(--surface-2)}
+.dbl .x2{display:grid;place-items:center;width:32px;height:32px;border-radius:999px;background:var(--surface-2);font-family:var(--font-display);font-weight:800;font-size:13px}
+.dbl[aria-pressed="true"]{border-style:solid;border-color:var(--warn-ink);background:var(--warn-bg);color:var(--warn-ink)}
+.dbl[aria-pressed="true"] .x2{background:var(--warn-ink);color:var(--warn-bg)}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
@@ -430,6 +436,7 @@ function scoreRound(r, R, no, mult, teams){
   const speed = isSpeedRound(no, R);
   const maxEst = est.reduce((a, e) => Math.max(a, e || 0), 0);
   const bigFactor = R.bigCall > 0 && estDone && maxEst >= R.bigCall ? 2 : 1;
+  const dblFactor = r.doubled ? 2 : 1;
   const caller = (!has(r.caller) || r.dashCall[r.caller]) ? null : r.caller;
   const callerEst = caller === null ? null : est[caller];
   const roles = est.map((e, i) => {
@@ -439,7 +446,7 @@ function scoreRound(r, R, no, mult, teams){
     const isRisk = r.risk === i && riskLevel > 0;
     return {isCall, isWith, isRisk, dashCall: !!r.dashCall[i]};
   });
-  const res = {est, sumEst, sumTricks, over, diff, riskLevel, speed, caller, roles, mult, bigFactor,
+  const res = {est, sumEst, sumTricks, over, diff, riskLevel, speed, caller, roles, mult, bigFactor, dblFactor,
     estDone, tricksDone, complete: estDone && tricksDone && sumTricks === 13,
     made: null, winners: null, points: null, parts: null, saaydeh: false};
   if (!res.complete) return res;
@@ -479,7 +486,7 @@ function scoreRound(r, R, no, mult, teams){
       if (made[a] && made[b]) res.parts[est[b] > est[a] ? b : a].push(["Team bonus", R.teamBonus]);
     });
   }
-  res.points = res.parts.map(p => p.reduce((s, x) => s + x[1], 0) * mult * bigFactor);
+  res.points = res.parts.map(p => p.reduce((s, x) => s + x[1], 0) * mult * bigFactor * dblFactor);
   return res;
 }
 function computeGame(rounds, R, teams){
@@ -641,11 +648,11 @@ let draft = emptyDraft();
 let calc = null;
 function emptyDraft(){
   return {est: [null, null, null, null], tricks: [null, null, null, null], dashCall: [false, false, false, false],
-    caller: null, risk: null, callerManual: false, riskManual: false, suit: null, suitManual: false};
+    caller: null, risk: null, callerManual: false, riskManual: false, suit: null, suitManual: false, doubled: false};
 }
 function packDraft(){
   return {est: draft.est.map((e, i) => draft.dashCall[i] ? 0 : e), tricks: draft.tricks.slice(),
-    dashCall: draft.dashCall.slice(), caller: draft.caller, risk: draft.risk, suit: draft.suit || null};
+    dashCall: draft.dashCall.slice(), caller: draft.caller, risk: draft.risk, suit: draft.suit || null, doubled: !!draft.doubled};
 }
 const roundNo = () => editingIndex !== null ? editingIndex + 1 : store.current.rounds.length + 1;
 const roundMult = () => editingIndex !== null ? calc.rounds[editingIndex].mult : calc.nextMult;
@@ -908,6 +915,7 @@ function viewPlay(){
     <section class="card entry" id="entry" aria-labelledby="entryTitle">
       <div class="entry-head"><h2 id="entryTitle">Round</h2><span id="entryChips" class="entry-head"></span></div>
       <p class="hint">Enter estimates before you play, then the tricks each player won.</p>
+      <div class="dbl-row"><button type="button" class="dbl" id="dblBtn" aria-pressed="false"><span class="x2" aria-hidden="true">×2</span><span id="dblTxt">Double this round</span></button></div>
       <div id="rows">${[0, 1, 2, 3].map(i => `
         <div class="prow">
           <div class="p-name">
@@ -955,6 +963,7 @@ function viewPlay(){
     draft.caller = +b.dataset.i; draft.callerManual = true;
     updatePlay();
   });
+  $("#dblBtn").addEventListener("click", () => { draft.doubled = !draft.doubled; updatePlay(); });
   $("#suitPick").addEventListener("click", e => {
     const b = e.target.closest("button[data-suit]");
     if (!b) return;
@@ -1005,6 +1014,9 @@ function updatePlay(){
   let chips = speed ? `<span class="chip speed">Speed round · ${esc(speedTrump(no, R))}</span>` : `<span class="chip">Bidding round</span>`;
   if (mult > 1) chips += `<span class="chip mult">×${mult} Sa'aydeh</span>`;
   if (res.bigFactor > 1) chips += `<span class="chip mult">Estimate of ${R.bigCall}+ · ×2</span>`;
+  if (res.dblFactor > 1) chips += `<span class="chip mult">Doubled ×2</span>`;
+  $("#dblBtn").setAttribute("aria-pressed", String(!!draft.doubled));
+  $("#dblTxt").textContent = draft.doubled ? "Round doubled · tap to undo" : "Double this round";
   $("#entryChips").innerHTML = chips;
   $("#suitLabel").textContent = speed ? "Trump suit (fixed in speed rounds, change it if your table differs)" : "Trump suit called";
   $("#suitPick").innerHTML = SUITS.map(x => `<button type="button" data-suit="${x.k}" aria-pressed="${draft.suit === x.k}">` +
@@ -1045,7 +1057,7 @@ function updatePlay(){
       pts.className = "pts " + (v > 0 ? "pos" : v < 0 ? "neg" : "none");
       why.textContent = res.saaydeh ? "Nobody made it"
         : (res.made[i] ? "Made it · " : "Missed · ") + res.parts[i].map(([l, x]) => `${l} ${fmtPts(x)}`).join(", ") +
-          (mult > 1 ? ` · ×${mult}` : "") + (res.bigFactor > 1 ? " · ×2" : "");
+          (mult > 1 ? ` · ×${mult}` : "") + (res.bigFactor > 1 ? " · ×2" : "") + (res.dblFactor > 1 ? " · doubled ×2" : "");
     } else { pts.textContent = ""; pts.className = "pts none"; why.textContent = ""; }
   }
   $("#callerPick").innerHTML = [0, 1, 2, 3].map(i =>
@@ -1107,7 +1119,7 @@ function roundsTable(g, c, editable){
     const res = c.rounds[idx], no = idx + 1;
     let sub = (r.suit ? suitGlyph(r.suit) + " · " : "") + (res.speed ? "Speed" : "Bid");
     if (res.estDone) sub += ` · ${res.over ? "over" : "under"} ${res.diff}`;
-    const mx = (res.mult > 1 ? ` · ×${res.mult}` : "") + (res.bigFactor > 1 ? " · 8+ ×2" : "");
+    const mx = (res.mult > 1 ? ` · ×${res.mult}` : "") + (res.bigFactor > 1 ? " · 8+ ×2" : "") + (res.dblFactor > 1 ? " · doubled" : "");
     h += `<tr data-idx="${idx}" class="${editable ? "click" : ""} ${editable && editingIndex === idx ? "editing" : ""}"><th scope="row">` +
       (editable ? `<button type="button" class="rbtn" data-idx="${idx}" aria-label="Fix round ${no}">${no}</button>` : `<span class="rno">${no}</span>`) +
       `<span class="rsub">${sub}${mx}</span>${res.saaydeh ? `<span class="rsub sa">Sa'aydeh</span>` : ""}</th>`;
@@ -1158,7 +1170,7 @@ function viewScores(){
     const idx = +tr.dataset.idx, r = store.current.rounds[idx];
     editingIndex = idx;
     draft = {est: r.est.map((v, i) => r.dashCall[i] ? 0 : v), tricks: r.tricks.slice(), dashCall: r.dashCall.slice(),
-      caller: r.caller, risk: r.risk, callerManual: true, riskManual: true, suit: r.suit || null, suitManual: true};
+      caller: r.caller, risk: r.risk, callerManual: true, riskManual: true, suit: r.suit || null, suitManual: true, doubled: !!r.doubled};
     go("play");
   });
   $("#endBtn").addEventListener("click", e => armConfirm(e.currentTarget, "Tap again to end", () => { archiveCurrent(); go("home"); }));
@@ -1178,7 +1190,7 @@ function resultsText(g, c){
   if (n) t += "\n";
   g.rounds.forEach((r, idx) => {
     const res = c.rounds[idx];
-    t += `R${idx + 1}${r.suit ? " " + suitOf(r.suit).sym : ""}${res.mult > 1 ? ` (×${res.mult})` : ""}: ` +
+    t += `R${idx + 1}${r.suit ? " " + suitOf(r.suit).sym : ""}${res.mult > 1 ? ` (×${res.mult})` : ""}${r.doubled ? " (doubled)" : ""}: ` +
       (res.saaydeh ? "Sa'aydeh, nobody made it" : [0, 1, 2, 3].map(i => `${nameOf(g, i)} ${fmtPts(res.points[i])}`).join(", ")) + "\n";
   });
   return t;
@@ -1351,6 +1363,7 @@ function ruleItems(R){
     `<b>Sa'aydeh</b>: if nobody makes their estimate, the round scores nothing and the next round counts ×2` + (R.saaydeh === "double" ? `, then ×4 if it happens again.` : `, then ×3 if it happens again.`)
   ];
   if (R.bigCall > 0) items.push(`If anyone estimates <b>${R.bigCall} or more</b>, every score in that round is doubled.`);
+  items.push(`<b>Double this round</b>: turn it on in a round and every score in that round counts twice, on top of any other doubling.`);
   if (R.speedRounds > 0){
     const first = R.totalRounds - R.speedRounds + 1;
     items.push(`Rounds ${first}–${R.totalRounds} are <b>speed rounds</b> with fixed trumps (${SUIT_ORDER.slice(0, Math.min(5, R.speedRounds)).join(", ")}). The highest estimate counts as the Call${R.withInSpeed ? "." : " and there is no With."}`);
