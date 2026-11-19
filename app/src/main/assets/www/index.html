@@ -22,7 +22,7 @@
   --bg:#eceee9; --surface:#fbfbf8; --surface-2:#f1f2ed; --ink:#121613; --ink-2:#4a514c; --muted:#737a75; --line:#d9ddd5;
   --accent:#17604a; --accent-ink:#ffffff; --accent-soft:#dcebe3;
   --felt:#145741; --felt-ink:#f4f2ea;
-  --neg:#b42c2c; --pos:#12703f;
+  --neg:#b42c2c; --pos:#12703f; --suit-red:#c42b2b; --suit-red-inv:#ff9a9a;
   --warn-bg:#fdf1d6; --warn-ink:#6b4a00; --err-bg:#fbe3e1; --err-ink:#8f1f1f;
   --p1:#2a78d6; --p2:#eb6834; --p3:#1baf7a; --p4:#eda100;
   --grid:#e1e0d9; --axis:#c3c2b7;
@@ -36,7 +36,7 @@
     --bg:#0e1210; --surface:#161b18; --surface-2:#1e2420; --ink:#eef1ec; --ink-2:#b8bfb9; --muted:#8c938d; --line:#2b322d;
     --accent:#45b088; --accent-ink:#04120c; --accent-soft:#1b3a2e;
     --felt:#0f3e2f; --felt-ink:#eef0e8;
-    --neg:#f08a84; --pos:#62d39c;
+    --neg:#f08a84; --pos:#62d39c; --suit-red:#ff8a80; --suit-red-inv:#b3261e;
     --warn-bg:#3a2e10; --warn-ink:#f5d58a; --err-bg:#3d1b1a; --err-ink:#f6b0aa;
     --p1:#3987e5; --p2:#d95926; --p3:#199e70; --p4:#c98500;
     --grid:#2c2c2a; --axis:#383835;
@@ -47,7 +47,7 @@
   --bg:#0e1210; --surface:#161b18; --surface-2:#1e2420; --ink:#eef1ec; --ink-2:#b8bfb9; --muted:#8c938d; --line:#2b322d;
   --accent:#45b088; --accent-ink:#04120c; --accent-soft:#1b3a2e;
   --felt:#0f3e2f; --felt-ink:#eef0e8;
-  --neg:#f08a84; --pos:#62d39c;
+  --neg:#f08a84; --pos:#62d39c; --suit-red:#ff8a80; --suit-red-inv:#b3261e;
   --warn-bg:#3a2e10; --warn-ink:#f5d58a; --err-bg:#3d1b1a; --err-ink:#f6b0aa;
   --p1:#3987e5; --p2:#d95926; --p3:#199e70; --p4:#c98500;
   --grid:#2c2c2a; --axis:#383835;
@@ -299,10 +299,45 @@ tfoot th,tfoot td{font-weight:800;font-size:15px;border-bottom:0;background:var(
 .kv dd{margin:0;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
 .save-bar{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px;box-shadow:0 8px 24px rgba(0,0,0,.16)}
 .sticky-cta .save-bar .btn{box-shadow:none;flex:1 1 auto}
+.badge{display:inline-grid;place-items:center;flex:none}
+.badge svg{width:20px;height:20px;display:block}
+.pc-total{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.pc-total .badge svg{width:26px;height:26px}
+.board.teams .pc-total .badge svg{width:32px;height:32px}
+.stand .badge svg{width:24px;height:24px}
+.win{display:inline-flex;align-items:center;gap:8px}
+.win .badge svg{width:26px;height:26px}
+.sg{font-size:17px;line-height:1;color:var(--ink)}
+.sg.red{color:var(--suit-red)}
+.pick button[aria-pressed="true"] .sg{color:var(--surface)}
+.pick button[aria-pressed="true"] .sg.red{color:var(--suit-red-inv)}
+.rsub .sg{font-size:12px;font-weight:700}
+.suits-pick button{min-width:50px;justify-content:center}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <clipPath id="cobClip"><path d="M12 2.4c3.1 0 4.7 4.1 4.7 8.6S15.1 19 12 19s-4.7-3.5-4.7-8S8.9 2.4 12 2.4z"/></clipPath>
+    <symbol id="ic-king" viewBox="0 0 24 24">
+      <path d="M3.3 8.6l4.5 3.6L12 5.6l4.2 6.6 4.5-3.6-1.8 8.6H5.1z" fill="#f5b800" stroke="#7a4f00" stroke-width="1.3" stroke-linejoin="round"/>
+      <rect x="5" y="17.9" width="14" height="2.7" rx="1" fill="#f5b800" stroke="#7a4f00" stroke-width="1.3"/>
+      <circle cx="3.3" cy="7.9" r="1.6" fill="#f5b800" stroke="#7a4f00" stroke-width="1.1"/>
+      <circle cx="12" cy="4.4" r="1.6" fill="#f5b800" stroke="#7a4f00" stroke-width="1.1"/>
+      <circle cx="20.7" cy="7.9" r="1.6" fill="#f5b800" stroke="#7a4f00" stroke-width="1.1"/>
+      <circle cx="12" cy="14.4" r="1.3" fill="#c42b2b"/>
+    </symbol>
+    <symbol id="ic-kooz" viewBox="0 0 24 24">
+      <g transform="translate(12 12.4) scale(0.98) rotate(28) translate(-12 -12.4)">
+        <path d="M12 2.4c3.1 0 4.7 4.1 4.7 8.6S15.1 19 12 19s-4.7-3.5-4.7-8S8.9 2.4 12 2.4z" fill="#f4cd3c"/>
+        <g clip-path="url(#cobClip)" stroke="#a06f00" stroke-width="1" fill="none"><path d="M6 5.6h12M6 8.4h12M6 11.2h12M6 14h12M6 16.8h12M10 2v18M14 2v18"/></g>
+        <path d="M12 2.4c3.1 0 4.7 4.1 4.7 8.6S15.1 19 12 19s-4.7-3.5-4.7-8S8.9 2.4 12 2.4z" fill="none" stroke="#7a5500" stroke-width="1.1"/>
+        <path d="M12 22.4c-3.3-1-5.6-4.6-5.8-9.3 1.7 2.6 3.6 4.4 5.8 5 2.2-.6 4.1-2.4 5.8-5-.2 4.7-2.5 8.3-5.8 9.3z" fill="#5aa339" stroke="#2f6b1f" stroke-width="1" stroke-linejoin="round"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
 <div class="app">
   <header class="appbar">
     <div class="appbar-inner">
@@ -554,6 +589,28 @@ function ruleSetOf(R){
 const RULESET_NAMES = {mine: "My rules", jawaker: "Online (Jawaker)", classic: "Classic score sheet", custom: "Custom rules"};
 const presetLabel = R => RULESET_NAMES[ruleSetOf(R)];
 const calcGame = g => computeGame(g.rounds, g.rules, g.mode === "teams");
+// Same order as SUIT_ORDER, which is also the speed-round trump order.
+const SUITS = [
+  {k: "nt", sym: "NT", name: "No trump"},
+  {k: "s", sym: "♠", name: "Spades"},
+  {k: "h", sym: "♥", name: "Hearts", red: true},
+  {k: "d", sym: "♦", name: "Diamonds", red: true},
+  {k: "c", sym: "♣", name: "Clubs"}
+];
+const suitOf = k => SUITS.find(x => x.k === k) || null;
+const suitGlyph = k => { const x = suitOf(k); return x ? `<span class="sg ${x.red ? "red" : ""}">${x.sym}</span>` : ""; };
+function speedSuit(no, R){ const first = R.totalRounds - R.speedRounds + 1; return SUITS[(no - first) % SUITS.length].k; }
+// King (crown) on the highest total, Kooz (corn cob) on the lowest. Ties share the badge; nothing while everyone is level.
+function badgesFor(vals, n){
+  if (!n) return vals.map(() => null);
+  const hi = Math.max(...vals), lo = Math.min(...vals);
+  if (hi === lo) return vals.map(() => null);
+  return vals.map(v => v === hi ? "king" : v === lo ? "kooz" : null);
+}
+const BADGE = {
+  king: `<span class="badge" title="King: highest score"><svg viewBox="0 0 24 24" role="img" aria-label="King, highest score"><use href="#ic-king"/></svg></span>`,
+  kooz: `<span class="badge" title="Kooz: lowest score"><svg viewBox="0 0 24 24" role="img" aria-label="Kooz, lowest score"><use href="#ic-kooz"/></svg></span>`
+};
 function dateLabel(iso){
   try { const d = new Date(iso); return d.toLocaleDateString(undefined, {day: "numeric", month: "short"}) + ", " + d.toLocaleTimeString(undefined, {hour: "numeric", minute: "2-digit"}); }
   catch (e) { return ""; }
@@ -584,11 +641,11 @@ let draft = emptyDraft();
 let calc = null;
 function emptyDraft(){
   return {est: [null, null, null, null], tricks: [null, null, null, null], dashCall: [false, false, false, false],
-    caller: null, risk: null, callerManual: false, riskManual: false};
+    caller: null, risk: null, callerManual: false, riskManual: false, suit: null, suitManual: false};
 }
 function packDraft(){
   return {est: draft.est.map((e, i) => draft.dashCall[i] ? 0 : e), tricks: draft.tricks.slice(),
-    dashCall: draft.dashCall.slice(), caller: draft.caller, risk: draft.risk};
+    dashCall: draft.dashCall.slice(), caller: draft.caller, risk: draft.risk, suit: draft.suit || null};
 }
 const roundNo = () => editingIndex !== null ? editingIndex + 1 : store.current.rounds.length + 1;
 const roundMult = () => editingIndex !== null ? calc.rounds[editingIndex].mult : calc.nextMult;
@@ -662,12 +719,13 @@ function updateAppbar(){
 }
 
 /* ---------- Home ---------- */
-function standList(g, c, cls){
+function standList(g, c, cls, badges){
   const s = sides(g, c);
   const rk = ranks(s.map(x => x.total));
+  const bd = badges === false ? s.map(() => null) : badgesFor(s.map(x => x.total), g.rounds.length);
   const order = s.map((x, k) => k).sort((a, b) => s[b].total - s[a].total);
   return `<ol class="stand ${cls || ""}">` + order.map(k => `<li><span class="rk">${g.rounds.length ? rk[k] : "–"}</span>
-    <span class="nm"><span class="dot c${s[k].ci}" aria-hidden="true"></span><span>${esc(s[k].label)}${s[k].sub ? `<span class="sb">${esc(s[k].sub)}</span>` : ""}</span></span>
+    <span class="nm"><span class="dot c${s[k].ci}" aria-hidden="true"></span><span>${esc(s[k].label)}${s[k].sub ? `<span class="sb">${esc(s[k].sub)}</span>` : ""}</span>${bd[k] ? BADGE[bd[k]] : ""}</span>
     <span class="tt ${s[k].total < 0 ? "neg" : ""}">${fmtTotal(s[k].total)}</span></li>`).join("") + `</ol>`;
 }
 function viewHome(){
@@ -821,16 +879,16 @@ function viewNew(){
 function boardHTML(g, c){
   const n = g.rounds.length;
   if (g.mode === "teams"){
-    const tr = ranks(c.teamTotals);
+    const tr = ranks(c.teamTotals), bd = badgesFor(c.teamTotals, n);
     return `<div class="board teams">` + [0, 1].map(t => `<div class="pcard ${n && tr[t] === 1 ? "lead" : ""}">
       <div class="pc-top"><span class="dot c${t}" aria-hidden="true"></span><span class="pc-name">${esc(teamNameOf(g, t))}</span><span class="rank">${n ? ordinal(tr[t]) : "–"}</span></div>
-      <div class="pc-total ${c.teamTotals[t] < 0 ? "neg" : ""}">${fmtTotal(c.teamTotals[t])}</div>
+      <div class="pc-total ${c.teamTotals[t] < 0 ? "neg" : ""}"><span>${fmtTotal(c.teamTotals[t])}</span>${bd[t] ? BADGE[bd[t]] : ""}</div>
       <div class="pc-last">${TEAMS[t].map(i => `${esc(nameOf(g, i))} ${fmtTotal(c.totals[i])}`).join(" · ")}</div></div>`).join("") + `</div>`;
   }
-  const rk = ranks(c.totals);
+  const rk = ranks(c.totals), bd = badgesFor(c.totals, n);
   return `<div class="board">` + [0, 1, 2, 3].map(i => `<div class="pcard ${n && rk[i] === 1 ? "lead" : ""}">
     <div class="pc-top"><span class="dot c${i}" aria-hidden="true"></span><span class="pc-name">${esc(nameOf(g, i))}</span></div>
-    <div class="pc-total ${c.totals[i] < 0 ? "neg" : ""}">${fmtTotal(c.totals[i])}</div>
+    <div class="pc-total ${c.totals[i] < 0 ? "neg" : ""}"><span>${fmtTotal(c.totals[i])}</span>${bd[i] ? BADGE[bd[i]] : ""}</div>
     <div class="pc-last"><span class="rank">${n ? ordinal(rk[i]) : "–"}</span></div></div>`).join("") + `</div>`;
 }
 function stepperHTML(kind, i, label){
@@ -862,6 +920,7 @@ function viewPlay(){
           <div class="p-prev"><span class="pts none" id="pts${i}"></span><span class="why" id="why${i}"></span></div>
         </div>`).join("")}</div>
       <div class="roles">
+        <div><p class="role-label" id="suitLabel">Trump suit called</p><div class="pick suits-pick" id="suitPick" role="group" aria-labelledby="suitLabel"></div></div>
         <div><p class="role-label" id="callLabel">Call</p><div class="pick" id="callerPick" role="group" aria-labelledby="callLabel"></div></div>
         <div><p class="role-label" id="riskLabel">Risk: who estimated last</p><div class="pick" id="riskPick" role="group" aria-labelledby="riskLabel"></div></div>
       </div>
@@ -896,6 +955,13 @@ function viewPlay(){
     draft.caller = +b.dataset.i; draft.callerManual = true;
     updatePlay();
   });
+  $("#suitPick").addEventListener("click", e => {
+    const b = e.target.closest("button[data-suit]");
+    if (!b) return;
+    draft.suit = draft.suit === b.dataset.suit ? null : b.dataset.suit;
+    draft.suitManual = true;
+    updatePlay();
+  });
   $("#riskPick").addEventListener("click", e => {
     const b = e.target.closest("button[data-i]");
     if (!b) return;
@@ -925,12 +991,13 @@ function updatePlay(){
   calc = calcGame(g);
   autoRoles();
   const no = roundNo(), mult = roundMult(), speed = isSpeedRound(no, R);
+  if (speed && !draft.suitManual && !draft.suit) draft.suit = speedSuit(no, R);
   const res = scoreRound(packDraft(), R, no, mult, g.mode === "teams");
   const n = g.rounds.length;
   $("#board").innerHTML = boardHTML(g, calc);
   const fb = $("#finalBanner");
   if (n >= R.totalRounds && editingIndex === null){
-    fb.innerHTML = `<span><b>${esc(winnerText(g, calc))}</b> after ${n} rounds.</span><span class="actions"><a class="btn btn-primary" href="#scores">See scores</a></span>`;
+    fb.innerHTML = `<span class="win">${BADGE.king}<span><b>${esc(winnerText(g, calc))}</b> after ${n} rounds.</span></span><span class="actions"><a class="btn btn-primary" href="#scores">See scores</a></span>`;
     fb.hidden = false;
   } else fb.hidden = true;
 
@@ -939,6 +1006,9 @@ function updatePlay(){
   if (mult > 1) chips += `<span class="chip mult">×${mult} Sa'aydeh</span>`;
   if (res.bigFactor > 1) chips += `<span class="chip mult">Estimate of ${R.bigCall}+ · ×2</span>`;
   $("#entryChips").innerHTML = chips;
+  $("#suitLabel").textContent = speed ? "Trump suit (fixed in speed rounds, change it if your table differs)" : "Trump suit called";
+  $("#suitPick").innerHTML = SUITS.map(x => `<button type="button" data-suit="${x.k}" aria-pressed="${draft.suit === x.k}">` +
+    (x.k === "nt" ? "No trump" : `<span class="sg ${x.red ? "red" : ""}" aria-hidden="true">${x.sym}</span>${x.name}`) + `</button>`).join("");
   $("#callLabel").textContent = speed ? "Call: highest estimate (first to say it)" : "Call: who won the bidding";
 
   for (let i = 0; i < 4; i++){
@@ -1035,7 +1105,7 @@ function roundsTable(g, c, editable){
     `</tr></thead><tbody>`;
   g.rounds.forEach((r, idx) => {
     const res = c.rounds[idx], no = idx + 1;
-    let sub = res.speed ? "Speed" : "Bid";
+    let sub = (r.suit ? suitGlyph(r.suit) + " · " : "") + (res.speed ? "Speed" : "Bid");
     if (res.estDone) sub += ` · ${res.over ? "over" : "under"} ${res.diff}`;
     const mx = (res.mult > 1 ? ` · ×${res.mult}` : "") + (res.bigFactor > 1 ? " · 8+ ×2" : "");
     h += `<tr data-idx="${idx}" class="${editable ? "click" : ""} ${editable && editingIndex === idx ? "editing" : ""}"><th scope="row">` +
@@ -1058,11 +1128,11 @@ function roundsTable(g, c, editable){
 function scoresBody(g, c, editable){
   const n = g.rounds.length, R = g.rules;
   let html = "";
-  if (n >= R.totalRounds) html += `<section class="banner final"><span><b>${esc(winnerText(g, c))}</b> after ${n} rounds.</span></section>`;
+  if (n >= R.totalRounds) html += `<section class="banner final"><span class="win">${BADGE.king}<span><b>${esc(winnerText(g, c))}</b> after ${n} rounds.</span></span></section>`;
   html += `<section class="card"><div class="card-head"><h2>Standings</h2><span class="muted">${n} of ${R.totalRounds} rounds · ${presetLabel(R)}</span></div>${standList(g, c, "")}`;
   if (g.mode === "teams"){
     const pg = {mode: "single", players: g.players, teamNames: g.teamNames, rounds: g.rounds};
-    html += `<p class="subhead">Players</p>` + standList(pg, c, "small compact").replace(/class="dot c(\d)"/g, (m, k) => `class="dot c${teamOf(+k)}"`);
+    html += `<p class="subhead">Players</p>` + standList(pg, c, "small compact", false).replace(/class="dot c(\d)"/g, (m, k) => `class="dot c${teamOf(+k)}"`);
   }
   html += `</section>`;
   html += `<section class="card"><div class="card-head"><h2>Rounds</h2><span class="muted">${editable ? "Tap a round to fix it. " : ""}Under each score: estimate / tricks.</span></div>${roundsTable(g, c, editable)}</section>`;
@@ -1088,7 +1158,7 @@ function viewScores(){
     const idx = +tr.dataset.idx, r = store.current.rounds[idx];
     editingIndex = idx;
     draft = {est: r.est.map((v, i) => r.dashCall[i] ? 0 : v), tricks: r.tricks.slice(), dashCall: r.dashCall.slice(),
-      caller: r.caller, risk: r.risk, callerManual: true, riskManual: true};
+      caller: r.caller, risk: r.risk, callerManual: true, riskManual: true, suit: r.suit || null, suitManual: true};
     go("play");
   });
   $("#endBtn").addEventListener("click", e => armConfirm(e.currentTarget, "Tap again to end", () => { archiveCurrent(); go("home"); }));
@@ -1108,7 +1178,7 @@ function resultsText(g, c){
   if (n) t += "\n";
   g.rounds.forEach((r, idx) => {
     const res = c.rounds[idx];
-    t += `R${idx + 1}${res.mult > 1 ? ` (×${res.mult})` : ""}: ` +
+    t += `R${idx + 1}${r.suit ? " " + suitOf(r.suit).sym : ""}${res.mult > 1 ? ` (×${res.mult})` : ""}: ` +
       (res.saaydeh ? "Sa'aydeh, nobody made it" : [0, 1, 2, 3].map(i => `${nameOf(g, i)} ${fmtPts(res.points[i])}`).join(", ")) + "\n";
   });
   return t;
